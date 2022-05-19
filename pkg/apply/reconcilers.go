@@ -139,9 +139,13 @@ func reconcileJob(oldObj, newObj runtime.Object) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	newJob = prunedSvc.(*batchv1.Job)
 
-	if !equality.Semantic.DeepEqual(oldJob.Spec.Template, newJob.Spec.Template) {
+	newPrunedJob := &batchv1.Job{}
+	if err := convertObj(prunedSvc, newPrunedJob); err != nil {
+		return false, err
+	}
+
+	if !equality.Semantic.DeepEqual(oldJob.Spec.Template, newPrunedJob.Spec.Template) {
 		return false, ErrReplace
 	}
 
